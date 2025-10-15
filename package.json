@@ -17,10 +17,12 @@
     "body-parser": "^2.2.0",
     "chokidar": "^4.0.3",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "fastify": "^5.6.1",
     "fastify-cors": "^6.0.3",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

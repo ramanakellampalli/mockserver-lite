@@ -1,0 +1,16 @@
+openapi: 3.0.0
+info:
+  title: MockServer Lite API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                status: ok
+                timestamp: "2025-10-15T00:00:00Z"

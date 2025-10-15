@@ -1,6 +1,10 @@
 const { faker } = require('@faker-js/faker');
 const Ajv = require('ajv');
 const ajv = new Ajv();
+const fs = require('fs');
+const path = require('path'); 
+
+const DATA_STORE_FILE = path.join(__dirname, '../data/state.json');
 
 // In-memory store for stateful endpoints
 const stateStore = {};
@@ -33,6 +37,10 @@ function generateMockRoutes(app, schema) {
           delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
         }
 
+        if (req.headers['x-user-role'] === 'admin') {
+          example = example.map(item => ({ ...item, adminView: true }));
+        }
+
         // 3️⃣ Request body validation (for POST/PUT)
         const schemaBody = methods[method].requestBody?.content?.['application/json']?.schema;
         if (schemaBody) {
@@ -60,6 +68,23 @@ function generateMockRoutes(app, schema) {
           example = stateStore[key];
         }
 
+        // GET returns stateful data if exists
+        if (method === 'get' && stateStore[key].length > 0) {
+          example = stateStore[key];
+
+          // Apply query filters
+          const queryKeys = Object.keys(req.query).filter(k => !['status', 'delay', 'minDelay', 'maxDelay', 'count'].includes(k));
+          if (queryKeys.length > 0) {
+            example = example.filter(item =>
+              queryKeys.every(qk => item[qk] == req.query[qk])
+            );
+          }
+
+          // Apply count parameter
+          const count = parseInt(req.query.count) || example.length;
+          if (Array.isArray(example)) example = example.slice(0, count);
+        }
+
         // 6️⃣ Randomize array items using faker
         if (Array.isArray(example)) {
           example = example.map(item => {
@@ -80,6 +105,15 @@ function generateMockRoutes(app, schema) {
   });
 }
 
+// Load previous state
+if (fs.existsSync(DATA_STORE_FILE)) {
+  const saved = JSON.parse(fs.readFileSync(DATA_STORE_FILE, 'utf8'));
+  Object.assign(stateStore, saved);
+}
+setInterval(() => {
+  fs.writeFileSync(DATA_STORE_FILE, JSON.stringify(stateStore, null, 2));
+}, 5000); // every 5 seconds
+
 function generateFaker(type) {
   switch (type) {
     case 'name': return faker.person.fullName();
@@ -87,6 +121,8 @@ function generateFaker(type) {
     case 'uuid': return faker.string.uuid();
     case 'address': return faker.location.streetAddress();
     case 'company': return faker.company.name();
+    case 'phone': return faker.phone.number();
+    case 'date': return faker.date.recent().toISOString();
     default: return 'mock';
   }
 }
