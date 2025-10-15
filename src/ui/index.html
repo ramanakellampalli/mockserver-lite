@@ -2,10 +2,61 @@
 <html>
 <head>
   <title>MockServer Lite UI</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    label { display: block; margin-top: 10px; }
+    input, select { margin-bottom: 20px; }
+  </style>
 </head>
 <body>
-  <h1>MockServer Lite</h1>
-  <p>Use query param `?delay=ms` to simulate response delay</p>
-  <p>Example: <a href="/users?delay=1000">/users?delay=1000</a></p>
+  <h1>MockServer Lite UI</h1>
+
+  <label>
+    Endpoint:
+    <input type="text" id="endpoint" placeholder="/users">
+  </label>
+
+  <label>
+    Method:
+    <select id="method">
+      <option value="get">GET</option>
+      <option value="post">POST</option>
+    </select>
+  </label>
+
+  <label>
+    Status Code:
+    <select id="status">
+      <option value="">Default</option>
+      <option value="200">200</option>
+      <option value="201">201</option>
+      <option value="404">404</option>
+      <option value="500">500</option>
+    </select>
+  </label>
+
+  <label>
+    Delay (ms):
+    <input type="number" id="delay" value="0">
+  </label>
+
+  <button onclick="callMock()">Call Mock API</button>
+
+  <pre id="result" style="background:#f0f0f0; padding:10px;"></pre>
+
+  <script>
+    async function callMock() {
+      const endpoint = document.getElementById('endpoint').value;
+      const method = document.getElementById('method').value;
+      const status = document.getElementById('status').value;
+      const delay = document.getElementById('delay').value;
+
+      const url = `${endpoint}${status ? '?status='+status+'&delay='+delay : delay ? '?delay='+delay : ''}`;
+      
+      const response = await fetch(url, { method: method.toUpperCase() });
+      const data = await response.json();
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
 </body>
 </html>

@@ -12,10 +12,12 @@ paths:
           content:
             application/json:
               example:
-                - id: 1
-                  name: "Alice"
-                - id: 2
-                  name: "Bob"
+                - id: faker:uuid
+                  name: faker:name
+                  email: faker:email
+                - id: faker:uuid
+                  name: faker:name
+                  email: faker:email
     post:
       summary: Add a user
       requestBody:
