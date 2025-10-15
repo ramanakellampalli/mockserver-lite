@@ -11,21 +11,14 @@
 <body>
   <h1>MockServer Lite UI</h1>
 
-  <label>
-    Endpoint:
-    <input type="text" id="endpoint" placeholder="/users">
-  </label>
-
-  <label>
-    Method:
+  <label>Endpoint: <input type="text" id="endpoint" placeholder="/users"></label>
+  <label>Method: 
     <select id="method">
       <option value="get">GET</option>
       <option value="post">POST</option>
     </select>
   </label>
-
-  <label>
-    Status Code:
+  <label>Status Code: 
     <select id="status">
       <option value="">Default</option>
       <option value="200">200</option>
@@ -34,14 +27,9 @@
       <option value="500">500</option>
     </select>
   </label>
-
-  <label>
-    Delay (ms):
-    <input type="number" id="delay" value="0">
-  </label>
+  <label>Delay (ms): <input type="number" id="delay" value="0"></label>
 
   <button onclick="callMock()">Call Mock API</button>
-
   <pre id="result" style="background:#f0f0f0; padding:10px;"></pre>
 
   <script>
@@ -51,8 +39,12 @@
       const status = document.getElementById('status').value;
       const delay = document.getElementById('delay').value;
 
-      const url = `${endpoint}${status ? '?status='+status+'&delay='+delay : delay ? '?delay='+delay : ''}`;
-      
+      let url = endpoint;
+      const params = [];
+      if (status) params.push('status=' + status);
+      if (delay) params.push('delay=' + delay);
+      if (params.length) url += '?' + params.join('&');
+
       const response = await fetch(url, { method: method.toUpperCase() });
       const data = await response.json();
       document.getElementById('result').textContent = JSON.stringify(data, null, 2);
